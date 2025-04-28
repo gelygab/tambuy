@@ -16,20 +16,22 @@ from firebase_admin import credentials, firestore
 # 1. Connect to Firebase
 import os
 
-# Get Firebase credentials from environment variable
-firebase_creds_json = os.environ.get('FIREBASE_CREDENTIALS')
-
-if not firebase_creds_json:
-    raise ValueError('FIREBASE_CREDENTIALS environment variable is not set')
-
+# Initialize Firebase with credentials from environment variable
 try:
-    import json
-    cred_dict = json.loads(firebase_creds_json)
-    cred = credentials.Certificate(cred_dict)
+    # Get credentials from environment
+    firebase_creds = os.environ.get('FIREBASE_CREDENTIALS')
+    if not firebase_creds:
+        raise ValueError('FIREBASE_CREDENTIALS environment variable is not set')
+
+    # Parse JSON credentials
+    creds_dict = json.loads(firebase_creds)
+
+    # Initialize Firebase
     if not firebase_admin._apps:
+        cred = credentials.Certificate(creds_dict)
         firebase_admin.initialize_app(cred)
 except json.JSONDecodeError:
-    raise ValueError('FIREBASE_CREDENTIALS environment variable contains invalid JSON')
+    raise ValueError('Invalid JSON in FIREBASE_CREDENTIALS environment variable')
 except Exception as e:
     raise Exception(f'Failed to initialize Firebase: {str(e)}')
 
