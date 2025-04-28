@@ -17,33 +17,23 @@ from firebase_admin import credentials, firestore
 import os
 
 def initialize_firebase():
-    """Initialize Firebase with credentials from environment variables or JSON file."""
+    """Initialize Firebase with credentials from JSON file."""
     try:
-        # First try environment variables
-        if os.environ.get('FIREBASE_TYPE'):
-            creds_dict = {
-                'type': os.environ.get('FIREBASE_TYPE'),
-                'project_id': os.environ.get('FIREBASE_PROJECT_ID'),
-                'private_key_id': os.environ.get('FIREBASE_PRIVATE_KEY_ID'),
-                'private_key': os.environ.get('FIREBASE_PRIVATE_KEY'),
-                'client_email': os.environ.get('FIREBASE_CLIENT_EMAIL'),
-                'client_id': os.environ.get('FIREBASE_CLIENT_ID'),
-                'auth_uri': os.environ.get('FIREBASE_AUTH_URI'),
-                'token_uri': os.environ.get('FIREBASE_TOKEN_URI'),
-                'auth_provider_x509_cert_url': os.environ.get('FIREBASE_AUTH_PROVIDER_X509_CERT_URL'),
-                'client_x509_cert_url': os.environ.get('FIREBASE_CLIENT_X509_CERT_URL')
-            }
-            # Initialize Firebase with dictionary
-            if not firebase_admin._apps:
-                cred = credentials.Certificate(creds_dict)
-                firebase_admin.initialize_app(cred)
-        else:
-            # Fallback to JSON file
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            cred_path = os.path.join(base_dir, 'database-table-badc5-firebase-adminsdk-fbsvc-fee7cfa592.json')
-            if not firebase_admin._apps:
-                cred = credentials.Certificate(cred_path)
-                firebase_admin.initialize_app(cred)
+        # Use JSON file directly
+        cred_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'database-table-badc5-firebase-adminsdk-fbsvc-fee7cfa592.json'
+        )
+        
+        # Check if file exists
+        if not os.path.exists(cred_path):
+            raise FileNotFoundError(f'Firebase credentials file not found at: {cred_path}')
+            
+        # Initialize Firebase if not already initialized
+        if not firebase_admin._apps:
+            cred = credentials.Certificate(cred_path)
+            firebase_admin.initialize_app(cred)
+            print(f'Successfully initialized Firebase with credentials from: {cred_path}')
     except Exception as e:
         print(f'Firebase initialization error: {str(e)}')
         raise
