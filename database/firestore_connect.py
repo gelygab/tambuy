@@ -16,13 +16,20 @@ from firebase_admin import credentials, firestore
 # 1. Connect to Firebase
 import os
 
-# Get the current directory
-base_dir = os.path.dirname(os.path.abspath(__file__))
-# Construct the path to the credentials file
-cred_path = os.path.join(base_dir, 'database-table-badc5-firebase-adminsdk-fbsvc-fee7cfa592.json')
-cred = credentials.Certificate(cred_path)  # <-- your JSON file here
-if not firebase_admin._apps:
-    firebase_admin.initialize_app(cred)
+# Get Firebase credentials from environment variable
+firebase_creds_json = os.environ.get('FIREBASE_CREDENTIALS')
+if firebase_creds_json:
+    import json
+    cred = credentials.Certificate(json.loads(firebase_creds_json))
+    if not firebase_admin._apps:
+        firebase_admin.initialize_app(cred)
+else:
+    # Fallback to file for local development
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    cred_path = os.path.join(base_dir, 'database-table-badc5-firebase-adminsdk-fbsvc-fee7cfa592.json')
+    cred = credentials.Certificate(cred_path)
+    if not firebase_admin._apps:
+        firebase_admin.initialize_app(cred)
 
 # Initialize Firestore (or use Realtime Database if needed)
 db = firestore.client()  # Firestore
