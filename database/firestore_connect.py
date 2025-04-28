@@ -19,16 +19,23 @@ import os
 def initialize_firebase():
     """Initialize Firebase with credentials from JSON file."""
     try:
-        # Use JSON file directly
+        # Get project root directory (2 levels up from this file)
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(os.path.dirname(current_dir))
+        
+        # Construct path to JSON file
         cred_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
+            project_root,
+            'database',
             'database-table-badc5-firebase-adminsdk-fbsvc-fee7cfa592.json'
         )
         
-        # Check if file exists
-        if not os.path.exists(cred_path):
-            raise FileNotFoundError(f'Firebase credentials file not found at: {cred_path}')
-            
+        # Print debug info
+        print(f'Looking for Firebase credentials at: {cred_path}')
+        print(f'Current directory: {current_dir}')
+        print(f'Project root: {project_root}')
+        print(f'File exists: {os.path.exists(cred_path)}')
+        
         # Initialize Firebase if not already initialized
         if not firebase_admin._apps:
             cred = credentials.Certificate(cred_path)
