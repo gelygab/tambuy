@@ -17,23 +17,15 @@ from firebase_admin import credentials, firestore
 import os
 
 def initialize_firebase():
-    """Initialize Firebase with credentials from environment variable or local file."""
+    """Initialize Firebase with credentials from config file."""
     try:
-        # First try environment variable
-        firebase_creds = os.environ.get('FIREBASE_CREDENTIALS')
-        if firebase_creds:
-            creds_dict = json.loads(firebase_creds)
-        else:
-            # Fallback to local file
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            cred_path = os.path.join(base_dir, 'database-table-badc5-firebase-adminsdk-fbsvc-fee7cfa592.json')
-            with open(cred_path, 'r') as f:
-                creds_dict = json.load(f)
+        from .firebase_config import FIREBASE_CONFIG
         
+        # Initialize Firebase if not already initialized
         if not firebase_admin._apps:
-            cred = credentials.Certificate(creds_dict)
+            cred = credentials.Certificate(FIREBASE_CONFIG)
             firebase_admin.initialize_app(cred)
-            
+
     except Exception as e:
         print(f'Firebase initialization error: {str(e)}')
         raise
