@@ -9,6 +9,10 @@ __pycache__/
 db.sqlite3
 db.sqlite3-journal
 media
+
+# Firebase
+firebase_config.py
+*firebase-adminsdk*.json
 staticfiles/
 
 # Virtual Environment
