@@ -17,15 +17,32 @@ from firebase_admin import credentials, firestore
 import os
 
 def initialize_firebase():
-    """Initialize Firebase with credentials from config file."""
+    """Initialize Firebase with credentials from environment variables."""
+    required_fields = [
+        'type', 'project_id', 'private_key_id', 'private_key',
+        'client_email', 'client_id', 'auth_uri', 'token_uri',
+        'auth_provider_x509_cert_url', 'client_x509_cert_url'
+    ]
+    
     try:
-        from .firebase_config import FIREBASE_CONFIG
+        # Get credentials from environment variables
+        creds_dict = {}
+        for field in required_fields:
+            env_key = f'FIREBASE_{field.upper()}'
+            value = os.environ.get(env_key)
+            if not value:
+                raise ValueError(f'Missing required environment variable: {env_key}')
+            creds_dict[field] = value
+            
+        # Special handling for private_key - it needs newlines
+        if '\n' not in creds_dict['private_key']:
+            creds_dict['private_key'] = creds_dict['private_key'].replace('\\n', '\n')
         
         # Initialize Firebase if not already initialized
         if not firebase_admin._apps:
-            cred = credentials.Certificate(FIREBASE_CONFIG)
+            cred = credentials.Certificate(creds_dict)
             firebase_admin.initialize_app(cred)
-
+            
     except Exception as e:
         print(f'Firebase initialization error: {str(e)}')
         raise
