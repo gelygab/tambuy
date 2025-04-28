@@ -18,16 +18,20 @@ import os
 
 # Get Firebase credentials from environment variable
 firebase_creds_json = os.environ.get('FIREBASE_CREDENTIALS')
-if firebase_creds_json:
-    import json
-    cred = credentials.Certificate(json.loads(firebase_creds_json))
-    if not firebase_admin._apps:
-        firebase_admin.initialize_app(cred)
-else:
-    # Fallback to file for local development
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    cred_path = os.path.join(base_dir, 'database-table-badc5-firebase-adminsdk-fbsvc-fee7cfa592.json')
-    cred = credentials.Certificate(cred_path)
+
+try:
+    if firebase_creds_json:
+        import json
+        cred = credentials.Certificate(json.loads(firebase_creds_json))
+    else:
+        # Fallback to file for local development
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        cred_path = os.path.join(base_dir, 'database-table-badc5-firebase-adminsdk-fbsvc-fee7cfa592.json')
+        if os.path.exists(cred_path):
+            cred = credentials.Certificate(cred_path)
+        else:
+            raise FileNotFoundError(f'Firebase credentials not found in environment or at {cred_path}')
+    
     if not firebase_admin._apps:
         firebase_admin.initialize_app(cred)
 
